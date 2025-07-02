@@ -1,21 +1,10 @@
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer');
 const express = require('express');
 const cors = require('cors');
 const app = express();
 
-// === HACK : force le parsing du JSON body, même si express.json() échoue sur Render ===
-app.use((req, res, next) => {
-  let data = '';
-  req.on('data', chunk => { data += chunk; });
-  req.on('end', () => {
-    try {
-      req.body = data ? JSON.parse(data) : {};
-    } catch (e) {
-      req.body = {};
-    }
-    next();
-  });
-});
+app.use(express.json({ type: '*/*' }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 const PORT = process.env.PORT || 3000;
@@ -23,7 +12,6 @@ const PORT = process.env.PORT || 3000;
 app.post('/analyze', async (req, res) => {
   console.log('BODY RECU:', req.body);
   const playlistUrl = req.body.url;
-
   if (!playlistUrl) {
     return res.status(400).json({ error: 'URL manquante' });
   }
@@ -35,26 +23,22 @@ app.post('/analyze', async (req, res) => {
     });
     const page = await browser.newPage();
     const sortUrl = `https://sortyourmusic.playlistmachinery.com/?playlist=${encodeURIComponent(playlistUrl)}`;
-
     await page.goto(sortUrl, { waitUntil: 'networkidle2' });
     await page.waitForSelector('table#songs');
-
     const data = await page.evaluate(() => {
       const rows = Array.from(document.querySelectorAll('table#songs tr')).slice(1);
       const headers = Array.from(document.querySelectorAll('table#songs thead th')).map(h => h.innerText.trim());
-
       return rows.map(row => {
         const cells = Array.from(row.querySelectorAll('td'));
         const values = cells.map(cell => cell.innerText.trim());
         return Object.fromEntries(headers.map((h, i) => [h, values[i]]));
       });
     });
-
     await browser.close();
     res.json(data);
   } catch (err) {
     console.error('Erreur analyse SortYourMusic:', err);
-    res.status(500).json({ error: "Erreur lors de l'analyse de la playlist." });
+    res.status(500).json({ error: "Erreur lors de l'analyse de la playlist.", details: String(err) });
   }
 });
 
