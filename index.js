@@ -2,10 +2,12 @@ const puppeteer = require('puppeteer-core');
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
+app.use(express.json({ type: '*/*' }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use(express.json());
+
+const PORT = process.env.PORT || 3000;
 
 app.post('/analyze', async (req, res) => {
   console.log('BODY RECU:', req.body); 
