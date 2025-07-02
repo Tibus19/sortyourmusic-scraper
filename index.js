@@ -3,14 +3,25 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-app.use(express.json({ type: '*/*' }));
-app.use(express.urlencoded({ extended: true }));
+// === HACK : force le parsing du JSON body, même si express.json() échoue sur Render ===
+app.use((req, res, next) => {
+  let data = '';
+  req.on('data', chunk => { data += chunk; });
+  req.on('end', () => {
+    try {
+      req.body = data ? JSON.parse(data) : {};
+    } catch (e) {
+      req.body = {};
+    }
+    next();
+  });
+});
 app.use(cors());
 
 const PORT = process.env.PORT || 3000;
 
 app.post('/analyze', async (req, res) => {
-  console.log('BODY RECU:', req.body); 
+  console.log('BODY RECU:', req.body);
   const playlistUrl = req.body.url;
 
   if (!playlistUrl) {
@@ -20,7 +31,7 @@ app.post('/analyze', async (req, res) => {
   try {
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: '/usr/bin/chromium-browser', // <-- CHEMIN EXPLICITE !
+      executablePath: '/usr/bin/chromium-browser', // CHEMIN EXPLICITE !
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
@@ -44,7 +55,7 @@ app.post('/analyze', async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error('Erreur analyse SortYourMusic:', err);
-    res.status(500).json({ error: 'Erreur lors de l\'analyse de la playlist.' });
+    res.status(500).json({ error: "Erreur lors de l'analyse de la playlist." });
   }
 });
 
