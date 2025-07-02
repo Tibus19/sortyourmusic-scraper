@@ -3,8 +3,19 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-app.use(express.json({ type: '*/*' }));
-app.use(express.urlencoded({ extended: true }));
+// PATCH universel Railway/Render : parser le body JSON pour tous les types de requête
+app.use((req, res, next) => {
+  let data = '';
+  req.on('data', chunk => { data += chunk; });
+  req.on('end', () => {
+    try {
+      req.body = data ? JSON.parse(data) : {};
+    } catch (e) {
+      req.body = {};
+    }
+    next();
+  });
+});
 app.use(cors());
 
 const PORT = process.env.PORT || 3000;
@@ -12,6 +23,7 @@ const PORT = process.env.PORT || 3000;
 app.post('/analyze', async (req, res) => {
   console.log('BODY RECU:', req.body);
   const playlistUrl = req.body.url;
+
   if (!playlistUrl) {
     return res.status(400).json({ error: 'URL manquante' });
   }
