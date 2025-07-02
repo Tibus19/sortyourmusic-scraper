@@ -8,6 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/analyze', async (req, res) => {
+  console.log('BODY RECU:', req.body); 
   const playlistUrl = req.body.url;
 
   if (!playlistUrl) {
