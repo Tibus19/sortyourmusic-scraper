@@ -1,7 +1,6 @@
 const puppeteer = require('puppeteer-core');
 const express = require('express');
 const cors = require('cors');
-process.env.PUPPETEER_EXECUTABLE_PATH = '/usr/bin/chromium-browser';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -18,6 +17,7 @@ app.post('/analyze', async (req, res) => {
   try {
     const browser = await puppeteer.launch({
       headless: true,
+      executablePath: '/usr/bin/chromium-browser', // <-- CHEMIN EXPLICITE !
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
