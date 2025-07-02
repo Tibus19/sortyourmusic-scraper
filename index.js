@@ -31,7 +31,6 @@ app.post('/analyze', async (req, res) => {
   try {
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: '/usr/bin/chromium', // CHEMIN EXPLICITE !
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
