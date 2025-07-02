@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const express = require('express');
 const cors = require('cors');
 process.env.PUPPETEER_EXECUTABLE_PATH = '/usr/bin/chromium-browser';
