@@ -8,6 +8,7 @@ app.use((req, res, next) => {
   let data = '';
   req.on('data', chunk => { data += chunk; });
   req.on('end', () => {
+    console.log('RAW BODY:', data); // <-- C'est CE log qui va tout nous dire
     try {
       req.body = data ? JSON.parse(data) : {};
     } catch (e) {
