@@ -35,7 +35,7 @@ app.post('/analyze', async (req, res) => {
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
-    const sortUrl = `https://sortyourmusic.playlistmachinery.com/?playlist=${encodeURIComponent(playlistUrl)}`;
+    const sortUrl = `http://sortyourmusic.playlistmachinery.com/?playlist=${encodeURIComponent(playlistUrl)}`;
     await page.goto(sortUrl, { waitUntil: 'networkidle2' });
     await page.waitForSelector('table#songs');
     const data = await page.evaluate(() => {
