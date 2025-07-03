@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-// PATCH universel Railway/Render : parser le body JSON pour tous les types de requête
+// PATCH Railway/Render : parser JSON même si Content-Type incorrect
 app.use((req, res, next) => {
   let data = '';
   req.on('data', chunk => { data += chunk; });
